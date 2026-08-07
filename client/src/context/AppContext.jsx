@@ -18,6 +18,7 @@ const AppContextProvider = (props) => {
 
   const loadCreditsData = async () => {
     try {
+      if (!token) return;
       const { data } = await axios.get(
         backendUrl + "/api/user/credits",
         { headers: { token } }
@@ -26,11 +27,16 @@ const AppContextProvider = (props) => {
       if (data.success) {
         setCredit(data.credits);
         setUser(data.user);
+      } else {
+        // Token invalid or expired - clear silently
+        logout();
       }
     } catch (error) {
-      console.log(error);
-      const msg = error.response?.data?.message || error.message || "Something went wrong";
-      toast.error(msg);
+      console.log("Credits check error:", error.message);
+      // If token is invalid or route not found, log out silently without distracting toast
+      if (error.response?.status === 404 || error.response?.status === 401 || error.response?.status === 403) {
+        logout();
+      }
     }
   };
 
