@@ -3,13 +3,13 @@ import userModel from '../models/userModel.js';
 import historyModel from '../models/historyModel.js';
 import FormData from 'form-data';
 
-// Clean style modifiers (concise & effective)
+// Style prompt embellishment dictionary
 const STYLE_PROMPTS = {
-  'Photorealistic': 'photorealistic, 8k resolution, highly detailed',
-  'Cinematic': 'cinematic lighting, movie scene, 8k resolution',
-  'Cyberpunk': 'cyberpunk style, glowing neon lights, 8k',
-  'Anime': 'anime style, vibrant colors, detailed line art',
-  '3D Render': '3D Pixar render style, smooth shading, 8k'
+  'Photorealistic': 'realistic photo, high resolution, detailed, 8k, realistic lighting',
+  'Cinematic': 'cinematic shot, dramatic film lighting, depth of field, 8k',
+  'Cyberpunk': 'cyberpunk style, glowing neon lights, futuristic, 8k',
+  'Anime': 'anime illustration, vibrant colors, detailed line art',
+  '3D Render': '3D Pixar render, Octane render, raytracing, smooth shading'
 };
 
 // Common entity & typo resolution map
@@ -23,6 +23,13 @@ const TYPO_MAP = [
   { regex: /\bspiderman\b/gi, replacement: 'Spider-Man' },
 ];
 
+// Sports & Action context enrichment map
+const ACTION_ENRICHERS = [
+  { regex: /\bflying\s*catch\b/gi, addition: 'making a dynamic diving athletic catch on stadium cricket grass' },
+  { regex: /\bdiving\s*catch\b/gi, addition: 'making a dynamic diving athletic catch on stadium grass' },
+  { regex: /\bbatting\b/gi, addition: 'hitting a powerful shot in stadium during cricket match' },
+];
+
 const cleanPromptText = (rawPrompt) => {
   let cleaned = rawPrompt.trim();
   
@@ -31,13 +38,17 @@ const cleanPromptText = (rawPrompt) => {
     cleaned = cleaned.replace(item.regex, item.replacement);
   });
 
-  // Remove redundant repeated style strings if user pasted them
-  cleaned = cleaned.replace(/(,\s*(photorealistic|cinematic|cyberpunk|anime|3D render))+/gi, '');
+  // Apply action enrichment if detected
+  ACTION_ENRICHERS.forEach(item => {
+    if (item.regex.test(cleaned)) {
+      cleaned = cleaned.replace(item.regex, `${cleaned.match(item.regex)[0]} (${item.addition})`);
+    }
+  });
 
   return cleaned;
 };
 
-// 1. Generate AI Image with Precise Output Engine (Flux.1 / DALL-E Quality)
+// 1. Generate AI Image with High-Precision Action & Subject Output
 export const generateImage = async (req, res) => {
   try {
     const userId = req.body.userId || req.userId;
@@ -63,11 +74,11 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // Clean user prompt
+    // Clean and enrich user prompt
     const cleanedUserPrompt = cleanPromptText(prompt);
     const styleModifier = STYLE_PROMPTS[style] || STYLE_PROMPTS['Photorealistic'];
     
-    // Construct clean prompt for AI model
+    // Construct final prompt
     const finalPrompt = `${cleanedUserPrompt}, ${styleModifier}`;
 
     let resultImage = null;
@@ -94,7 +105,7 @@ export const generateImage = async (req, res) => {
         resultImage = `data:image/png;base64,${base64Image}`;
       }
     } catch (fluxErr) {
-      console.log('Flux Engine Timeout, falling back to ClipDrop API...', fluxErr.message);
+      console.log('Flux Engine Timeout, trying ClipDrop...', fluxErr.message);
     }
 
     // Fallback Engine: ClipDrop Text-To-Image API
@@ -148,7 +159,7 @@ export const generateImage = async (req, res) => {
   }
 };
 
-// 2. AI Prompt Enhancer (Clean & Direct)
+// 2. AI Prompt Enhancer
 export const enhancePrompt = async (req, res) => {
   try {
     const { prompt, style = 'Photorealistic' } = req.body;
@@ -159,7 +170,7 @@ export const enhancePrompt = async (req, res) => {
 
     let cleaned = cleanPromptText(prompt);
     const styleModifier = STYLE_PROMPTS[style] || 'cinematic lighting, highly detailed, 8k';
-    const enhancedPrompt = `${cleaned}, ${styleModifier}, masterpiece`;
+    const enhancedPrompt = `${cleaned}, ${styleModifier}, high quality 8k`;
 
     return res.json({
       success: true,
