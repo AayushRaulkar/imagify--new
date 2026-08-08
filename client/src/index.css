@@ -41,10 +41,10 @@ body {
 }
 
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.4);
-  transform: translateY(-6px) scale(1.015);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 25px 50px -15px rgba(124, 58, 237, 0.5);
+  transform: translateY(-8px) scale(1.02);
 }
 
 .glass-modal {
@@ -60,11 +60,13 @@ body {
 
 .glow-gradient {
   background: linear-gradient(135deg, #9333ea 0%, #6366f1 50%, #06b6d4 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
   transition: all 0.3s ease;
 }
 
 .glow-gradient:hover {
-  box-shadow: 0 0 40px rgba(147, 51, 234, 0.8);
+  box-shadow: 0 0 45px rgba(147, 51, 234, 0.85);
 }
 
 .text-gradient {
@@ -79,13 +81,13 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* Keyframe Animations */
+/* Advanced Keyframe Animations */
 @keyframes floatSlow {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-16px) rotate(2deg);
+    transform: translateY(-18px) rotate(2.5deg);
   }
 }
 
@@ -94,7 +96,7 @@ body {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-24px) rotate(-3deg);
+    transform: translateY(-26px) rotate(-3.5deg);
   }
 }
 
@@ -109,12 +111,47 @@ body {
   }
 }
 
+@keyframes scanLine {
+  0% {
+    top: -10%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 110%;
+    opacity: 0.8;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes orbitSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -130,10 +167,18 @@ body {
   animation: pulseGlow 5s infinite ease-in-out;
 }
 
+.animate-scan {
+  animation: scanLine 3.2s infinite linear;
+}
+
 .animate-shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
   background-size: 200% 100%;
-  animation: shimmer 3s infinite;
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-orbit {
+  animation: orbitSpin 12s linear infinite;
 }
 
 /* Custom Scrollbar */

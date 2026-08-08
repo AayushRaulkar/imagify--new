@@ -24,8 +24,9 @@ const Description = () => {
       <div className="flex flex-col gap-10 lg:gap-16 lg:flex-row items-center justify-center max-w-6xl">
         {/* Image Showcase Frame with Ambient Glow & Animated Scanner Beam */}
         <motion.div 
-          whileHover={{ scale: 1.02 }}
-          className="relative group cursor-pointer"
+          whileHover={{ scale: 1.05, rotateY: 5 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+          className="relative group cursor-pointer perspective-1000"
         >
           <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 rounded-3xl blur-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-glow" />
           <div className="relative p-2.5 bg-slate-900 rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
@@ -39,20 +40,21 @@ const Description = () => {
             />
             <div className="absolute bottom-4 left-4 right-4 p-3 rounded-xl bg-slate-950/85 backdrop-blur-xl border border-white/15 text-xs text-purple-200 flex justify-between items-center z-10 shadow-lg">
               <span className="font-mono text-[11px]">Prompt: "Cyberpunk girl portrait"</span>
-              <span className="bg-purple-600/70 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase">4K Ultra</span>
+              <span className="bg-purple-600/70 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase animate-pulse">4K Ultra</span>
             </div>
           </div>
         </motion.div>
 
         {/* Feature Copy Box */}
         <motion.div 
-          whileHover={{ y: -4 }}
+          whileHover={{ y: -6 }}
+          transition={{ type: "spring", stiffness: 250, damping: 20 }}
           className="max-w-xl glass-panel p-8 sm:p-10 rounded-3xl border border-white/15 shadow-2xl relative overflow-hidden"
         >
           <div className="absolute -top-20 -right-20 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
 
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-5 text-slate-100 leading-tight">
-            Introducing Next-Gen <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">AI-Powered</span> Generation
+            Powered by <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">Google Gemini AI</span> Engine
           </h2>
 
           <p className="text-slate-300 mb-4 font-light leading-relaxed text-sm sm:text-base">
@@ -60,24 +62,23 @@ const Description = () => {
           </p>
 
           <p className="text-slate-400 font-light leading-relaxed text-sm sm:text-base">
-            Simply describe your vision, and our state-of-the-art AI model will materialize your request with photorealistic precision, vivid lighting, and unparalleled detail.
+            Simply describe your vision, and our state-of-the-art Google Gemini AI engine will materialize your request with photorealistic precision, vivid lighting, and unparalleled detail.
           </p>
 
           <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/15">
-            <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/20">
+            <motion.div whileHover={{ scale: 1.05 }} className="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/20">
               <p className="text-2xl font-black text-purple-400">100%</p>
               <p className="text-xs text-slate-300 font-medium">Custom Prompts</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/20">
-              <p className="text-2xl font-black text-indigo-400">&lt; 3 sec</p>
-              <p className="text-xs text-slate-300 font-medium">Lightning Fast</p>
-            </div>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} className="p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/20">
+              <p className="text-2xl font-black text-indigo-400">&lt; 2.4 sec</p>
+              <p className="text-xs text-slate-300 font-medium">Gemini Inference</p>
+            </motion.div>
           </div>
         </motion.div>
       </div>
     </motion.div>
   );
 };
-
 
 export default Description
