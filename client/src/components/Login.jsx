@@ -71,14 +71,14 @@ const Login = () => {
     }, [])
 
     return (
-        <div className='fixed inset-0 z-50 backdrop-blur-md bg-black/60 flex justify-center items-center p-4'>
+        <div className='fixed inset-0 z-50 backdrop-blur-md bg-black/70 flex justify-center items-center p-4 overflow-y-auto'>
             <motion.form 
                 onSubmit={onSubmitHandler}
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 transition={{ duration: 0.3 }}
-                className='relative glass-modal p-8 sm:p-10 rounded-3xl w-full max-w-md border border-white/15 text-slate-200 shadow-2xl overflow-hidden'
+                className='relative glass-modal p-6 sm:p-10 rounded-3xl w-full max-w-md border border-white/15 text-slate-200 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar'
             >
                 <div className="absolute -top-20 -left-20 w-40 h-40 bg-purple-600/30 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none" />
