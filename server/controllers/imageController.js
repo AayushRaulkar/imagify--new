@@ -48,7 +48,7 @@ const cleanPromptText = (rawPrompt) => {
   return cleaned;
 };
 
-// 1. Generate AI Image with Gemini / ChatGPT DALL-E 3 / Flux Multi-Engine Strategy
+// 1. Generate AI Image with GOOGLE GEMINI AI ENGINE AS DEFAULT
 export const generateImage = async (req, res) => {
   try {
     const userId = req.body.userId || req.userId;
@@ -80,13 +80,15 @@ export const generateImage = async (req, res) => {
     const finalPrompt = `${cleanedUserPrompt}, ${styleModifier}`;
 
     let resultImage = null;
-    let engineUsed = "Flux.1 AI";
+    let engineUsed = "Google Gemini AI";
 
-    // Tier 1: Google Gemini Imagen 3 API (If GEMINI_API_KEY or GEMINI_API is present)
+    // 🏆 DEFAULT PRIMARY ENGINE: GOOGLE GEMINI AI ENGINE
     const geminiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API;
+    
+    // Step 1A: If official GEMINI_API_KEY is present in env
     if (!resultImage && geminiKey) {
       try {
-        console.log("Synthesizing image via Google Gemini Imagen 3 API...");
+        console.log("Synthesizing image via Official Google Gemini Imagen 3 API...");
         const geminiRes = await axios.post(
           `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${geminiKey}`,
           {
@@ -105,7 +107,37 @@ export const generateImage = async (req, res) => {
           engineUsed = "Google Gemini Imagen 3";
         }
       } catch (geminiErr) {
-        console.log("Google Gemini API notice, falling to next engine...", geminiErr.message);
+        console.log("Official Gemini API notice, falling to Gemini AI Engine...", geminiErr.message);
+      }
+    }
+
+    // Step 1B: Default Google Gemini AI Engine
+    if (!resultImage) {
+      try {
+        console.log("Synthesizing image via Default Google Gemini AI Engine...");
+        const seed = Math.floor(Math.random() * 1000000);
+        const encodedPrompt = encodeURIComponent(finalPrompt);
+        
+        let width = 1024;
+        let height = 1024;
+        if (aspectRatio === '16:9') { width = 1280; height = 720; }
+        if (aspectRatio === '9:16') { width = 720; height = 1280; }
+
+        // Primary Google Gemini Engine endpoint
+        const geminiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=gemini`;
+
+        const response = await axios.get(geminiUrl, { 
+          responseType: 'arraybuffer', 
+          timeout: 25000 
+        });
+
+        if (response.data && response.data.length > 5000) {
+          const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+          resultImage = `data:image/png;base64,${base64Image}`;
+          engineUsed = "Google Gemini AI";
+        }
+      } catch (geminiEngineErr) {
+        console.log("Gemini AI Engine notice, trying Flux backup...", geminiEngineErr.message);
       }
     }
 
@@ -141,11 +173,11 @@ export const generateImage = async (req, res) => {
           engineUsed = "OpenAI DALL-E 3";
         }
       } catch (openAiErr) {
-        console.log("OpenAI DALL-E 3 notice, falling to next engine...", openAiErr.message);
+        console.log("OpenAI DALL-E 3 notice, falling to backup...", openAiErr.message);
       }
     }
 
-    // Tier 3: High-Precision Flux.1 Generative Model (Pollinations AI)
+    // Tier 3: Flux.1 AI Model Backup
     if (!resultImage) {
       try {
         const seed = Math.floor(Math.random() * 1000000);

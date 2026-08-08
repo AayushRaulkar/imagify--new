@@ -24,7 +24,7 @@ const Result = () => {
     }
   }, [location.state]);
 
-  const [engineName, setEngineName] = useState("Flux.1 AI");
+  const [engineName, setEngineName] = useState("Google Gemini AI");
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
