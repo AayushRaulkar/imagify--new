@@ -3,43 +3,45 @@ import userModel from '../models/userModel.js';
 import historyModel from '../models/historyModel.js';
 import FormData from 'form-data';
 
-// Style prompt embellishment dictionary
+// Clean style modifiers (concise & effective)
 const STYLE_PROMPTS = {
-  'Photorealistic': 'photorealistic portrait, ultra-detailed 8k resolution, cinematic lighting, realistic skin textures, 85mm lens, masterwork',
-  'Cinematic': 'cinematic film shot, dramatic lighting, shallow depth of field, 8k resolution, highly detailed',
-  'Cyberpunk': 'cyberpunk style, glowing neon reflections, futuristic background, synthwave lighting, highly detailed',
-  'Anime': 'anime style, Studio Ghibli inspired, vibrant colors, detailed line art, masterpiece',
-  '3D Render': '3D Pixar animation style, Octane render, raytracing, smooth shading, vibrant lighting, 8k'
+  'Photorealistic': 'photorealistic, 8k resolution, highly detailed',
+  'Cinematic': 'cinematic lighting, movie scene, 8k resolution',
+  'Cyberpunk': 'cyberpunk style, glowing neon lights, 8k',
+  'Anime': 'anime style, vibrant colors, detailed line art',
+  '3D Render': '3D Pixar render style, smooth shading, 8k'
 };
 
 // Common entity & typo resolution map
 const TYPO_MAP = [
-  { regex: /\bvirta\s*kohli\b/gi, replacement: 'Virat Kohli, famous Indian cricketer' },
-  { regex: /\bvrat\s*kohli\b/gi, replacement: 'Virat Kohli, famous Indian cricketer' },
-  { regex: /\bvirat\s*koli\b/gi, replacement: 'Virat Kohli, famous Indian cricketer' },
-  { regex: /\bvirat\s*kohli\b/gi, replacement: 'Virat Kohli, famous Indian cricketer' },
-  { regex: /\brohit\s*sharma\b/gi, replacement: 'Rohit Sharma, Indian cricketer' },
-  { regex: /\bms\s*dhoni\b/gi, replacement: 'MS Dhoni, Indian cricket legend' },
-  { regex: /\bironman\b/gi, replacement: 'Iron Man superhero in armor' },
-  { regex: /\bspiderman\b/gi, replacement: 'Spider-Man superhero' },
+  { regex: /\bvirta\s*kohli\b/gi, replacement: 'Virat Kohli Indian cricketer' },
+  { regex: /\bvrat\s*kohli\b/gi, replacement: 'Virat Kohli Indian cricketer' },
+  { regex: /\bvirat\s*koli\b/gi, replacement: 'Virat Kohli Indian cricketer' },
+  { regex: /\brohit\s*sharma\b/gi, replacement: 'Rohit Sharma Indian cricketer' },
+  { regex: /\bms\s*dhoni\b/gi, replacement: 'MS Dhoni Indian cricketer' },
+  { regex: /\bironman\b/gi, replacement: 'Iron Man' },
+  { regex: /\bspiderman\b/gi, replacement: 'Spider-Man' },
 ];
 
-const cleanAndCorrectPrompt = (rawPrompt) => {
+const cleanPromptText = (rawPrompt) => {
   let cleaned = rawPrompt.trim();
   
-  // Apply typo & entity resolution
+  // Apply typo correction
   TYPO_MAP.forEach(item => {
     cleaned = cleaned.replace(item.regex, item.replacement);
   });
 
+  // Remove redundant repeated style strings if user pasted them
+  cleaned = cleaned.replace(/(,\s*(photorealistic|cinematic|cyberpunk|anime|3D render))+/gi, '');
+
   return cleaned;
 };
 
-// 1. Generate AI Image with Style Presets, Typo Correction & Dual-Engine Backup
+// 1. Generate AI Image with Precise Output Engine (Flux.1 / DALL-E Quality)
 export const generateImage = async (req, res) => {
   try {
     const userId = req.body.userId || req.userId;
-    const { prompt, style = 'Photorealistic', aspectRatio = '1:1', negativePrompt = '' } = req.body;
+    const { prompt, style = 'Photorealistic', aspectRatio = '1:1' } = req.body;
 
     if (!userId || !prompt) {
       return res.status(400).json({
@@ -49,12 +51,8 @@ export const generateImage = async (req, res) => {
     }
 
     const user = await userModel.findById(userId);
-
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     if (user.creditBalance <= 0) {
@@ -65,22 +63,19 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // Auto-correct typos & clean prompt
-    const correctedPrompt = cleanAndCorrectPrompt(prompt);
+    // Clean user prompt
+    const cleanedUserPrompt = cleanPromptText(prompt);
     const styleModifier = STYLE_PROMPTS[style] || STYLE_PROMPTS['Photorealistic'];
     
-    let fullPrompt = `${correctedPrompt}, ${styleModifier}`;
-    if (negativePrompt) {
-      fullPrompt += ` --avoid ${negativePrompt}`;
-    }
+    // Construct clean prompt for AI model
+    const finalPrompt = `${cleanedUserPrompt}, ${styleModifier}`;
 
     let resultImage = null;
 
-    // Dual-Engine Synthesizer Strategy:
-    // Try Pollinations SDXL / Flux engine first for celebrity & custom prompts (100% accurate)
+    // Primary Engine: High-Precision Flux.1 Generative Model (Pollinations AI)
     try {
-      const seed = Math.floor(Math.random() * 100000);
-      const encodedPrompt = encodeURIComponent(fullPrompt);
+      const seed = Math.floor(Math.random() * 1000000);
+      const encodedPrompt = encodeURIComponent(finalPrompt);
       
       let width = 1024;
       let height = 1024;
@@ -89,19 +84,23 @@ export const generateImage = async (req, res) => {
 
       const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux`;
 
-      const response = await axios.get(pollinationsUrl, { responseType: 'arraybuffer', timeout: 15000 });
+      const response = await axios.get(pollinationsUrl, { 
+        responseType: 'arraybuffer', 
+        timeout: 25000 
+      });
+
       if (response.data && response.data.length > 5000) {
         const base64Image = Buffer.from(response.data, 'binary').toString('base64');
         resultImage = `data:image/png;base64,${base64Image}`;
       }
-    } catch (pollinationErr) {
-      console.log('Pollinations Engine Notice, trying ClipDrop...', pollinationErr.message);
+    } catch (fluxErr) {
+      console.log('Flux Engine Timeout, falling back to ClipDrop API...', fluxErr.message);
     }
 
-    // Fallback to ClipDrop API if Pollinations engine didn't respond
+    // Fallback Engine: ClipDrop Text-To-Image API
     if (!resultImage) {
       const formData = new FormData();
-      formData.append('prompt', fullPrompt);
+      formData.append('prompt', finalPrompt);
 
       const { data } = await axios.post(
         'https://clipdrop-api.co/text-to-image/v1',
@@ -112,6 +111,7 @@ export const generateImage = async (req, res) => {
             'x-api-key': process.env.CLIPDROP_API,
           },
           responseType: 'arraybuffer',
+          timeout: 20000
         }
       );
 
@@ -123,10 +123,10 @@ export const generateImage = async (req, res) => {
     user.creditBalance -= 1;
     await user.save();
 
-    // Auto-save generated artwork to MongoDB user history
+    // Auto-save generated image to user history in MongoDB
     const historyItem = await historyModel.create({
       userId: user._id,
-      prompt: correctedPrompt,
+      prompt: cleanedUserPrompt,
       style,
       aspectRatio,
       resultImage
@@ -143,12 +143,12 @@ export const generateImage = async (req, res) => {
     console.error('Generate Image Error:', error.message);
     return res.status(500).json({
       success: false,
-      message: error.response ? 'API error during image synthesis' : error.message,
+      message: error.response?.data ? 'API error during image synthesis' : error.message,
     });
   }
 };
 
-// 2. Intelligent AI Prompt Enhancer Engine
+// 2. AI Prompt Enhancer (Clean & Direct)
 export const enhancePrompt = async (req, res) => {
   try {
     const { prompt, style = 'Photorealistic' } = req.body;
@@ -157,17 +157,9 @@ export const enhancePrompt = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Prompt is required for enhancement' });
     }
 
-    // Correct typos first
-    let cleaned = cleanAndCorrectPrompt(prompt);
-    
-    // Strip existing trailing style tags if user pasted them
-    cleaned = cleaned.replace(/,\s*cinematic shot.*$/gi, '')
-                     .replace(/,\s*photorealistic.*$/gi, '')
-                     .replace(/,\s*cyberpunk.*$/gi, '')
-                     .replace(/,\s*anime style.*$/gi, '');
-
-    const styleModifier = STYLE_PROMPTS[style] || 'cinematic lighting, hyper-detailed, 8k resolution';
-    const enhancedPrompt = `${cleaned}, ${styleModifier}, dramatic lighting, masterpiece 8k`;
+    let cleaned = cleanPromptText(prompt);
+    const styleModifier = STYLE_PROMPTS[style] || 'cinematic lighting, highly detailed, 8k';
+    const enhancedPrompt = `${cleaned}, ${styleModifier}, masterpiece`;
 
     return res.json({
       success: true,
@@ -182,38 +174,25 @@ export const enhancePrompt = async (req, res) => {
 export const getUserHistory = async (req, res) => {
   try {
     const userId = req.body.userId || req.userId;
-
-    if (!userId) {
-      return res.status(400).json({ success: false, message: 'User ID is required' });
-    }
+    if (!userId) return res.status(400).json({ success: false, message: 'User ID is required' });
 
     const history = await historyModel.find({ userId }).sort({ createdAt: -1 });
-
-    return res.json({
-      success: true,
-      history
-    });
+    return res.json({ success: true, history });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 4. Delete Specific Creation from History
+// 4. Delete History Item
 export const deleteHistoryItem = async (req, res) => {
   try {
     const userId = req.body.userId || req.userId;
     const { id } = req.params;
 
-    if (!userId || !id) {
-      return res.status(400).json({ success: false, message: 'Missing Details' });
-    }
+    if (!userId || !id) return res.status(400).json({ success: false, message: 'Missing Details' });
 
     await historyModel.findOneAndDelete({ _id: id, userId });
-
-    return res.json({
-      success: true,
-      message: 'Creation deleted from gallery'
-    });
+    return res.json({ success: true, message: 'Creation deleted' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
