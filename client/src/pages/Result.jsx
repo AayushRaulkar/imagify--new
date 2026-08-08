@@ -212,14 +212,16 @@ const Result = () => {
             ← Synthesize Another
           </button>
 
-          <a
-            href={image}
-            download="imagify_ai_artwork.png"
-            className="glow-gradient text-white font-bold px-10 py-3 rounded-full shadow-lg transition-all duration-300 cursor-pointer text-sm flex items-center gap-2"
-          >
-            <span>Download Image</span>
-            <span className="text-xs">↓</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={image}
+              download="imagify_ai_artwork.png"
+              className="glow-gradient text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all duration-300 cursor-pointer text-sm flex items-center gap-2"
+            >
+              <span>Download High-Res</span>
+              <span className="text-xs">↓</span>
+            </a>
+          </div>
         </div>
       )}
     </motion.div>
