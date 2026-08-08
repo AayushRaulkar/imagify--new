@@ -24,21 +24,28 @@ const Result = () => {
     }
   }, [location.state]);
 
+  const [engineName, setEngineName] = useState("Flux.1 AI");
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     setLoading(true);
 
-    const img = await generateImage({
+    const res = await generateImage({
       prompt: input,
       style: selectedStyle,
       aspectRatio,
     });
 
-    if (img) {
+    if (res) {
       setIsImageLoaded(true);
-      setImage(img);
+      if (typeof res === 'object' && res.resultImage) {
+        setImage(res.resultImage);
+        setEngineName(res.engineUsed || "Flux.1 AI");
+      } else {
+        setImage(res);
+      }
     }
 
     setLoading(false);
@@ -107,10 +114,10 @@ const Result = () => {
             </div>
           )}
 
-          {/* Watermark Badge */}
+          {/* Watermark & Engine Badge */}
           {isImageLoaded && (
             <div className="absolute bottom-3 right-3 px-3 py-1 rounded-lg bg-slate-950/80 backdrop-blur-md border border-white/15 text-[10px] font-mono text-purple-300 pointer-events-none flex items-center gap-1 shadow-lg">
-              <span>✨ Imagify AI</span>
+              <span>✨ Powered by {engineName}</span>
             </div>
           )}
 

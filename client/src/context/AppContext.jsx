@@ -73,8 +73,8 @@ const AppContextProvider = (props) => {
       if (data.success) {
         loadCreditsData();
         loadUserHistory();
-        toast.success("AI Image Synthesized Successfully!");
-        return data.resultImage;
+        toast.success(`AI Image Synthesized via ${data.engineUsed || 'Flux.1 AI'}! ✨`);
+        return { resultImage: data.resultImage, engineUsed: data.engineUsed || 'Flux.1 AI' };
       } else {
         toast.error(data.message || "Something went wrong");
         loadCreditsData();
