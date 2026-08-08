@@ -1,5 +1,3 @@
- 
-
 import React, { useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -9,18 +7,16 @@ import { motion } from 'framer-motion';
 import Home from './pages/Home';
 import Result from './pages/Result';
 import BuyCredit from './pages/BuyCredit';
-import Gallery from './pages/Gallery';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Login from './components/Login';
-import ArchitectureModal from './components/ArchitectureModal';
 import { AppContext } from './context/AppContext';
 
 const App = () => {
   const { showLogin } = useContext(AppContext);
 
   return (
-    <div className='relative min-h-screen bg-[#050811] bg-grid-pattern text-slate-100 selection:bg-purple-500 selection:text-white overflow-hidden'>
+    <div className='relative min-h-screen bg-[#030712] bg-grid-pattern text-slate-100 selection:bg-purple-500 selection:text-white overflow-hidden'>
       {/* Dynamic Floating Background Light Orbs */}
       <motion.div 
         animate={{ 
@@ -56,7 +52,6 @@ const App = () => {
         <Navbar />
 
         {showLogin && <Login />}
-        <ArchitectureModal />
 
         {/* Routes */}
         <main className='flex-grow'>
@@ -64,7 +59,6 @@ const App = () => {
             <Route path='/' element={<Home />} />
             <Route path='/result' element={<Result />} />
             <Route path='/buy' element={<BuyCredit />} />
-            <Route path='/gallery' element={<Gallery />} />
           </Routes>
         </main>
 

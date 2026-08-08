@@ -1,5 +1,3 @@
-
-
 import React, { useContext } from "react";
 import { assets } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,7 +5,7 @@ import { AppContext } from "../context/AppContext";
 import { motion } from "framer-motion";
 
 const Navbar = () => {
-  const { user, setShowLogin, logout, credit, setShowArchModal } = useContext(AppContext);
+  const { user, setShowLogin, logout, credit } = useContext(AppContext);
   const navigate = useNavigate();
 
   return (
@@ -17,7 +15,7 @@ const Navbar = () => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="sticky top-4 z-50 flex items-center justify-between py-3 px-5 sm:px-8 my-4 rounded-2xl glass-panel border border-white/15 shadow-2xl backdrop-blur-2xl"
     >
-      {/* Logo with Invert High-Contrast Filter */}
+      {/* High-Contrast Logo */}
       <Link to="/" className="flex items-center gap-2 group">
         <motion.img 
           whileHover={{ scale: 1.05 }}
@@ -29,30 +27,13 @@ const Navbar = () => {
       </Link>
 
       <div className="flex items-center gap-3 sm:gap-5">
-        {/* Architecture Blueprint Button */}
-        <button
-          onClick={() => setShowArchModal(true)}
-          className="hidden md:flex items-center gap-1.5 bg-slate-900/80 hover:bg-purple-900/40 border border-white/15 hover:border-purple-400/50 text-slate-300 hover:text-purple-200 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 cursor-pointer shadow-md"
-        >
-          <span className="text-purple-400 font-mono text-sm">⚡</span>
-          <span>Architecture</span>
-        </button>
-
         {user ? (
           <div className="flex items-center gap-3 sm:gap-4">
-            <button
-              onClick={() => navigate("/gallery")}
-              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-purple-300 font-semibold text-xs sm:text-sm transition-colors duration-200 cursor-pointer"
-            >
-              <span className="text-purple-400 font-mono">🖼️</span>
-              <span>My Gallery</span>
-            </button>
-
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168,85,247,0.5)" }}
+              whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(168,85,247,0.5)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/buy")}
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-900/60 via-indigo-900/60 to-purple-900/60 border border-purple-500/40 px-3.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all duration-300 cursor-pointer shadow-lg"
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-900/70 via-indigo-900/70 to-purple-900/70 border border-purple-500/50 px-4 sm:px-6 py-2 rounded-full transition-all duration-300 cursor-pointer shadow-lg"
             >
               <motion.img 
                 animate={{ rotate: [0, 15, -15, 0] }}
@@ -82,22 +63,15 @@ const Navbar = () => {
                 />
               </motion.div>
 
-              <div className="absolute hidden group-hover:block top-full right-0 z-20 pt-2 w-44">
+              <div className="absolute hidden group-hover:block top-full right-0 z-20 pt-2 w-36">
                 <motion.ul 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="list-none m-0 p-1.5 bg-slate-900/95 border border-white/15 rounded-xl shadow-2xl backdrop-blur-2xl text-xs sm:text-sm"
                 >
                   <li
-                    onClick={() => navigate("/gallery")}
-                    className="py-2 px-3 text-slate-300 hover:text-purple-300 hover:bg-slate-800/80 rounded-lg cursor-pointer transition-colors duration-200 flex items-center justify-between font-medium border-b border-white/10 mb-1"
-                  >
-                    <span>🖼️ My Gallery</span>
-                    <span className="text-xs opacity-60">→</span>
-                  </li>
-                  <li
                     onClick={logout}
-                    className="py-2 px-3 text-slate-300 hover:text-red-400 hover:bg-slate-800/80 rounded-lg cursor-pointer transition-colors duration-200 flex items-center justify-between font-medium"
+                    className="py-2.5 px-3 text-slate-300 hover:text-red-400 hover:bg-slate-800/80 rounded-lg cursor-pointer transition-colors duration-200 flex items-center justify-between font-medium"
                   >
                     <span>Logout</span>
                     <span className="text-xs opacity-60">↳</span>

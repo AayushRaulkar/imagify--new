@@ -174,8 +174,6 @@ const AppContextProvider = (props) => {
     generateImage,
     enhancePromptApi,
     deleteHistoryItem,
-    showArchModal,
-    setShowArchModal,
   };
 
   return (

@@ -5,7 +5,7 @@ import { AppContext } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom'
 
 const Header = () => {
-  const { user, setShowLogin, setShowArchModal } = useContext(AppContext)
+  const { user, setShowLogin } = useContext(AppContext)
   const navigate = useNavigate()
 
   const samplePrompts = [
@@ -62,7 +62,7 @@ const Header = () => {
           transition={{ delay: 0.2, duration: 0.6 }}
         >
           <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping" />
-          <span>Next-Gen Multi-Model AI Engine</span>
+          <span>Google Gemini AI Engine</span>
           <motion.img 
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
@@ -71,13 +71,6 @@ const Header = () => {
             className="w-4 h-4 filter drop-shadow-[0_0_6px_rgba(234,179,8,0.9)]" 
           />
         </motion.div>
-
-        <button
-          onClick={() => setShowArchModal(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-300 text-xs font-semibold shadow-md transition-all cursor-pointer"
-        >
-          <span>⚡ Architecture Blueprint</span>
-        </button>
       </div>
 
       {/* Hero Title */}
