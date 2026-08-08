@@ -14,39 +14,54 @@ const Login = () => {
     const [email,setEmail]=useState('')
     const [password,setPassword]=useState('')
 
-    const onSubmitHandler=async(e)=>{
+    const [loading, setLoading] = useState(false);
+
+    const onSubmitHandler = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
+            const endpoint = state === 'Login' ? '/api/user/login' : '/api/user/register';
+            const payload = state === 'Login' ? { email, password } : { name, email, password };
             
-            if(state==='Login'){
-              const {data}  = await axios.post(backendUrl+'/api/user/login',{email,password})
-                  
-              if(data.success){
-                    setToken(data.token)
-                    setUser(data.user)
-                    localStorage.setItem('token',data.token)
-                    setShowLogin(false)
-              }else{
-                toast.error(data.message)
-              }
+            const { data } = await axios.post(backendUrl + endpoint, payload);
 
-            }else{
-               const {data}  = await axios.post(backendUrl+'/api/user/register',{name,email,password})
-                  
-              if(data.success){
-                    setToken(data.token)
-                    setUser(data.user)
-                    localStorage.setItem('token',data.token)
-                    setShowLogin(false)
-              }else{
-                toast.error(data.message)
-              } 
+            if (data.success) {
+                setToken(data.token);
+                setUser(data.user);
+                localStorage.setItem('token', data.token);
+                setShowLogin(false);
+                toast.success(state === 'Login' ? "Logged in successfully! 🎉" : "Account created successfully! 🎉");
+            } else {
+                toast.error(data.message || "Authentication failed");
             }
         } catch (error) {
-            toast.error(error.message)
+            console.log("Auth Error:", error);
+            if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
+                toast.info("Render server is waking up from sleep (~20s cold start). Retrying...", { autoClose: 4000 });
+                try {
+                    const endpoint = state === 'Login' ? '/api/user/login' : '/api/user/register';
+                    const payload = state === 'Login' ? { email, password } : { name, email, password };
+                    const { data } = await axios.post(backendUrl + endpoint, payload);
+                    if (data.success) {
+                        setToken(data.token);
+                        setUser(data.user);
+                        localStorage.setItem('token', data.token);
+                        setShowLogin(false);
+                        toast.success("Logged in successfully! 🎉");
+                    } else {
+                        toast.error(data.message);
+                    }
+                } catch (retryError) {
+                    toast.error("Server is spinning up. Please click " + (state === 'Login' ? 'Sign In' : 'Create Account') + " again in a few seconds!");
+                }
+            } else {
+                toast.error(error.response?.data?.message || error.message || "Sign in failed");
+            }
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         document.body.style.overflow = 'hidden'
@@ -119,8 +134,18 @@ const Login = () => {
                     </div>
                 )}
 
-                <button className='glow-gradient w-full text-white font-bold py-3.5 rounded-2xl mt-6 shadow-[0_0_25px_rgba(124,58,237,0.5)] hover:shadow-[0_0_35px_rgba(124,58,237,0.8)] transition-all duration-300 active:scale-[0.98] cursor-pointer capitalize text-sm'>
-                    {state === 'Login' ? 'Sign In' : 'Create Account'}
+                <button 
+                    disabled={loading}
+                    className='glow-gradient w-full text-white font-bold py-3.5 rounded-2xl mt-6 shadow-[0_0_25px_rgba(124,58,237,0.5)] hover:shadow-[0_0_35px_rgba(124,58,237,0.8)] transition-all duration-300 active:scale-[0.98] cursor-pointer capitalize text-sm disabled:opacity-60 flex items-center justify-center gap-2'
+                >
+                    {loading ? (
+                        <>
+                            <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                            <span>Connecting...</span>
+                        </>
+                    ) : (
+                        <span>{state === 'Login' ? 'Sign In' : 'Create Account'}</span>
+                    )}
                 </button>
 
                 {state === 'Login' ? (
