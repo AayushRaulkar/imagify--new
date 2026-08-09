@@ -4,15 +4,13 @@ import { motion } from "framer-motion";
 import { AppContext } from "../context/AppContext";
 import { useLocation } from "react-router-dom";
 
-const SURPRISE_PROMPTS = [
-  "Cyberpunk feline samurai standing on a neon-lit Tokyo skyscraper at midnight",
-  "Surreal floating glass castle suspended inside a giant cosmic galaxy nebula",
-  "Vintage 1980s synthwave sports car driving on a glowing digital grid highway",
-  "Futuristic astronaut in white armor walking on a crystalline ice planet",
-  "Hyperrealistic cinematic portrait of an ancient warrior king with glowing golden crown",
-  "3D Pixar style cute baby robot holding a glowing light bulb in a cozy workshop",
-  "Majestic phoenix bird made of fiery golden embers taking flight over mountains",
-  "Minimalist architectural glass villa built on top of a tranquil ocean cliff at sunset"
+const STUDENT_PROMPTS = [
+  "DNA double helix molecular structure, biology textbook diagram, detailed 8K",
+  "Solar system planets orbiting the sun, astronomy educational illustration",
+  "Ancient Roman Colosseum architectural reconstruction, history textbook visual",
+  "Electric motor circuit schematic blueprint, engineering technical diagram",
+  "Photosynthesis process in green plant leaf, botany science diagram",
+  "Human brain anatomy with colored neural lobes, medical science illustration"
 ];
 
 const Result = () => {
@@ -30,11 +28,12 @@ const Result = () => {
   const [lens, setLens] = useState('Default');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isEduMode, setIsEduMode] = useState(false);
 
   const { generateImage, enhancePromptApi } = useContext(AppContext);
 
   useEffect(() => {
-    document.title = "AI Studio Workspace - Imagify";
+    document.title = "AI Student & Creation Studio - Imagify";
     if (location.state?.prompt) {
       setInput(location.state.prompt);
     }
@@ -49,6 +48,7 @@ const Result = () => {
     setLoading(true);
 
     let enrichedPrompt = input;
+    if (isEduMode) enrichedPrompt += ", educational textbook diagram, high clarity, clean white background, detailed academic illustration";
     if (lighting !== 'Default') enrichedPrompt += `, ${lighting} lighting`;
     if (lens !== 'Default') enrichedPrompt += `, shot on ${lens} camera lens`;
 
@@ -82,27 +82,29 @@ const Result = () => {
     setEnhancing(false);
   };
 
-  const handleSurpriseMe = () => {
-    const randomIdx = Math.floor(Math.random() * SURPRISE_PROMPTS.length);
-    setInput(SURPRISE_PROMPTS[randomIdx]);
+  const handleEduPromptSelect = (promptText) => {
+    setInput(promptText);
+    setSelectedStyle('Scientific Diagram');
+    setIsEduMode(true);
   };
 
   const styles = [
     { id: 'Photorealistic', name: '📷 Photorealistic' },
-    { id: 'Cinematic', name: '🎬 Cinematic' },
-    { id: 'Cyberpunk', name: '🌃 Cyberpunk' },
+    { id: 'Scientific Diagram', name: '🧪 Science & Diagram' },
+    { id: 'Infographic Slide', name: '📊 Edu Presentation' },
+    { id: 'Engineering Blueprint', name: '📐 Tech Blueprint' },
     { id: 'Anime', name: '🎨 Anime Art' },
     { id: '3D Render', name: '🍿 3D Pixar' },
   ];
 
   const aspectRatios = [
     { id: '1:1', label: '1:1 Square', class: 'aspect-square max-w-md' },
-    { id: '16:9', label: '16:9 Widescreen', class: 'aspect-video max-w-xl' },
-    { id: '9:16', label: '9:16 Portrait', class: 'aspect-[9/16] max-w-xs' },
+    { id: '16:9', label: '16:9 Widescreen (Slides)', class: 'aspect-video max-w-xl' },
+    { id: '9:16', label: '9:16 Mobile Poster', class: 'aspect-[9/16] max-w-xs' },
   ];
 
-  const lightingPresets = ['Default', 'Cinematic Warm', 'Cyber Neon', 'Golden Hour', 'Studio Softlight'];
-  const lensPresets = ['Default', '85mm Portrait', 'Wide Angle 16mm', 'Macro Zoom', 'Drone View'];
+  const lightingPresets = ['Default', 'Cinematic Warm', 'Studio White (Edu)', 'Golden Hour', 'Cyber Neon'];
+  const lensPresets = ['Default', 'Macro Zoom (Science)', 'Wide Angle (Slides)', '85mm Portrait', 'Drone View'];
 
   const currentAspect = aspectRatios.find(a => a.id === aspectRatio) || aspectRatios[0];
 
@@ -114,12 +116,30 @@ const Result = () => {
       className="flex flex-col min-h-[82vh] justify-center items-center py-8 px-4 max-w-5xl mx-auto"
     >
       <div className="text-center mb-6">
-        <div className="inline-block px-4 py-1 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-2">
-          Pro AI Generation Studio
+        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-2">
+          <span>🎓 Student & Creator AI Studio</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-gradient">
-          Generate AI Artwork
+          Generate AI Visuals & Diagrams
         </h1>
+        <p className="text-slate-400 text-xs sm:text-sm mt-2 max-w-lg mx-auto font-light">
+          Create presentation graphics, science diagrams, blueprints, and digital art powered by Google Gemini AI.
+        </p>
+      </div>
+
+      {/* Student Academic Mode Banner Toggle */}
+      <div className="mb-6 flex flex-wrap justify-center items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setIsEduMode(!isEduMode)}
+          className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border shadow-lg ${
+            isEduMode
+              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+              : "bg-slate-900/80 text-emerald-400 border-emerald-500/40 hover:bg-emerald-950/40"
+          }`}
+        >
+          <span>{isEduMode ? "✓ Student Academic Mode ON 🎓" : "🎓 Enable Student & Edu Mode"}</span>
+        </button>
       </div>
 
       {/* Image Canvas Container */}
@@ -134,11 +154,11 @@ const Result = () => {
           ) : (
             <div className="flex flex-col items-center justify-center p-8 text-center my-auto">
               <div className="p-5 rounded-full bg-purple-950/60 border border-purple-500/30 mb-4 animate-pulse">
-                <span className="text-4xl">🪄</span>
+                <span className="text-4xl">🎓</span>
               </div>
-              <h3 className="text-lg font-bold text-slate-200 mb-1">AI Studio Canvas Ready</h3>
+              <h3 className="text-lg font-bold text-slate-200 mb-1">Student & Research Studio Canvas Ready</h3>
               <p className="text-xs text-slate-400 max-w-xs font-light">
-                Type your prompt below and click <span className="text-purple-300 font-semibold">Generate</span> to synthesize custom AI artwork with Google Gemini.
+                Type your topic below or select a <span className="text-purple-300 font-semibold">Student Topic Preset</span> to generate high-clarity study visuals.
               </p>
             </div>
           )}
@@ -154,15 +174,32 @@ const Result = () => {
           {loading && (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md z-30">
               <div className="w-14 h-14 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin mb-4" />
-              <p className="text-purple-300 font-bold text-sm animate-pulse">Synthesizing via Google Gemini AI ({selectedStyle})...</p>
-              <p className="text-slate-400 text-xs mt-1 font-light">Generating accurate AI visual tokens</p>
+              <p className="text-purple-300 font-bold text-sm animate-pulse">Synthesizing Visual ({selectedStyle})...</p>
+              <p className="text-slate-400 text-xs mt-1 font-light">Generating crisp educational & scientific tokens</p>
             </div>
           )}
         </div>
       </div>
 
+      {/* Student Topic Presets */}
+      <div className="w-full max-w-3xl my-5">
+        <p className="text-xs text-purple-300 font-semibold mb-2 text-center">🎓 Quick Student & Academic Topic Presets:</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {STUDENT_PROMPTS.map((promptText, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleEduPromptSelect(promptText)}
+              className="text-[11px] bg-slate-900/80 hover:bg-emerald-950/60 border border-white/10 hover:border-emerald-400/50 text-slate-300 hover:text-emerald-200 px-3 py-1.5 rounded-full transition-all cursor-pointer shadow-sm"
+            >
+              "{promptText.split(',')[0]}"
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Main Controls Form */}
-      <form onSubmit={onSubmitHandler} className="w-full max-w-3xl mt-6">
+      <form onSubmit={onSubmitHandler} className="w-full max-w-3xl mt-2">
         
         {/* Style Selector Pills */}
         <div className="mb-4">
@@ -184,7 +221,7 @@ const Result = () => {
           </div>
         </div>
 
-        {/* Aspect Ratio Selector & Surprise Me */}
+        {/* Aspect Ratio Selector */}
         <div className="flex flex-wrap justify-center gap-2 mb-4">
           {aspectRatios.map((ratio) => (
             <button
@@ -203,22 +240,14 @@ const Result = () => {
 
           <button
             type="button"
-            onClick={handleSurpriseMe}
-            className="px-3.5 py-1.5 rounded-xl text-[11px] font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-500/40 transition-all cursor-pointer flex items-center gap-1 shadow-md"
-          >
-            <span>🎲 Surprise Me</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="px-3.5 py-1.5 rounded-xl text-[11px] font-semibold bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-white/10 transition-all cursor-pointer flex items-center gap-1"
           >
-            <span>⚙️ Pro Options {showAdvanced ? "▲" : "▼"}</span>
+            <span>⚙️ Advanced Options {showAdvanced ? "▲" : "▼"}</span>
           </button>
         </div>
 
-        {/* Collapsible Pro Controls (Lighting, Lens, Negative Prompt) */}
+        {/* Collapsible Controls */}
         {showAdvanced && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
@@ -244,7 +273,7 @@ const Result = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-indigo-300 font-semibold w-24">Camera Lens:</span>
+              <span className="text-xs text-indigo-300 font-semibold w-24">Camera / Lens:</span>
               <div className="flex flex-wrap gap-1.5">
                 {lensPresets.map((cam) => (
                   <button
@@ -280,7 +309,7 @@ const Result = () => {
             onChange={(e) => setInput(e.target.value)}
             value={input}
             type="text"
-            placeholder="Describe what you want to create (e.g. Virat Kohli playing cricket, Cyberpunk car in Tokyo)..."
+            placeholder="Type your study topic or presentation graphic (e.g. DNA structure, Solar system, Roman Colosseum)..."
             className="w-full sm:flex-1 bg-transparent outline-none px-4 py-2 text-sm text-slate-100 placeholder-slate-400 font-light"
           />
 
@@ -323,10 +352,10 @@ const Result = () => {
           <div className="flex items-center gap-2">
             <a
               href={image}
-              download="imagify_ai_artwork.png"
+              download="imagify_student_visual.png"
               className="glow-gradient text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all duration-300 cursor-pointer text-sm flex items-center gap-2"
             >
-              <span>Download High-Res</span>
+              <span>Save for Presentation / Project</span>
               <span className="text-xs">↓</span>
             </a>
           </div>
