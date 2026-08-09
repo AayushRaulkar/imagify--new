@@ -4,6 +4,17 @@ import { motion } from "framer-motion";
 import { AppContext } from "../context/AppContext";
 import { useLocation } from "react-router-dom";
 
+const SURPRISE_PROMPTS = [
+  "Cyberpunk feline samurai standing on a neon-lit Tokyo skyscraper at midnight",
+  "Surreal floating glass castle suspended inside a giant cosmic galaxy nebula",
+  "Vintage 1980s synthwave sports car driving on a glowing digital grid highway",
+  "Futuristic astronaut in white armor walking on a crystalline ice planet",
+  "Hyperrealistic cinematic portrait of an ancient warrior king with glowing golden crown",
+  "3D Pixar style cute baby robot holding a glowing light bulb in a cozy workshop",
+  "Majestic phoenix bird made of fiery golden embers taking flight over mountains",
+  "Minimalist architectural glass villa built on top of a tranquil ocean cliff at sunset"
+];
+
 const Result = () => {
   const location = useLocation();
   const [image, setImage] = useState(null);
@@ -15,6 +26,10 @@ const Result = () => {
   const [input, setInput] = useState(location.state?.prompt || "");
   const [selectedStyle, setSelectedStyle] = useState('Photorealistic');
   const [aspectRatio, setAspectRatio] = useState('1:1');
+  const [lighting, setLighting] = useState('Default');
+  const [lens, setLens] = useState('Default');
+  const [negativePrompt, setNegativePrompt] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { generateImage, enhancePromptApi } = useContext(AppContext);
 
@@ -33,17 +48,22 @@ const Result = () => {
 
     setLoading(true);
 
+    let enrichedPrompt = input;
+    if (lighting !== 'Default') enrichedPrompt += `, ${lighting} lighting`;
+    if (lens !== 'Default') enrichedPrompt += `, shot on ${lens} camera lens`;
+
     const res = await generateImage({
-      prompt: input,
+      prompt: enrichedPrompt,
       style: selectedStyle,
       aspectRatio,
+      negativePrompt
     });
 
     if (res) {
       setIsImageLoaded(true);
       if (typeof res === 'object' && res.resultImage) {
         setImage(res.resultImage);
-        setEngineName(res.engineUsed || "Flux.1 AI");
+        setEngineName(res.engineUsed || "Google Gemini AI");
       } else {
         setImage(res);
       }
@@ -62,6 +82,11 @@ const Result = () => {
     setEnhancing(false);
   };
 
+  const handleSurpriseMe = () => {
+    const randomIdx = Math.floor(Math.random() * SURPRISE_PROMPTS.length);
+    setInput(SURPRISE_PROMPTS[randomIdx]);
+  };
+
   const styles = [
     { id: 'Photorealistic', name: '📷 Photorealistic' },
     { id: 'Cinematic', name: '🎬 Cinematic' },
@@ -76,6 +101,9 @@ const Result = () => {
     { id: '9:16', label: '9:16 Portrait', class: 'aspect-[9/16] max-w-xs' },
   ];
 
+  const lightingPresets = ['Default', 'Cinematic Warm', 'Cyber Neon', 'Golden Hour', 'Studio Softlight'];
+  const lensPresets = ['Default', '85mm Portrait', 'Wide Angle 16mm', 'Macro Zoom', 'Drone View'];
+
   const currentAspect = aspectRatios.find(a => a.id === aspectRatio) || aspectRatios[0];
 
   return (
@@ -87,7 +115,7 @@ const Result = () => {
     >
       <div className="text-center mb-6">
         <div className="inline-block px-4 py-1 rounded-full bg-purple-950/50 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-2">
-          AI Generation Studio
+          Pro AI Generation Studio
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-gradient">
           Generate AI Artwork
@@ -110,7 +138,7 @@ const Result = () => {
               </div>
               <h3 className="text-lg font-bold text-slate-200 mb-1">AI Studio Canvas Ready</h3>
               <p className="text-xs text-slate-400 max-w-xs font-light">
-                Type your prompt below and click <span className="text-purple-300 font-semibold">Generate</span> to synthesize custom AI artwork.
+                Type your prompt below and click <span className="text-purple-300 font-semibold">Generate</span> to synthesize custom AI artwork with Google Gemini.
               </p>
             </div>
           )}
@@ -126,7 +154,7 @@ const Result = () => {
           {loading && (
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md z-30">
               <div className="w-14 h-14 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin mb-4" />
-              <p className="text-purple-300 font-bold text-sm animate-pulse">Synthesizing Artwork ({selectedStyle})...</p>
+              <p className="text-purple-300 font-bold text-sm animate-pulse">Synthesizing via Google Gemini AI ({selectedStyle})...</p>
               <p className="text-slate-400 text-xs mt-1 font-light">Generating accurate AI visual tokens</p>
             </div>
           )}
@@ -156,8 +184,8 @@ const Result = () => {
           </div>
         </div>
 
-        {/* Aspect Ratio Selector */}
-        <div className="flex justify-center gap-2 mb-4">
+        {/* Aspect Ratio Selector & Surprise Me */}
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {aspectRatios.map((ratio) => (
             <button
               key={ratio.id}
@@ -172,7 +200,79 @@ const Result = () => {
               {ratio.label}
             </button>
           ))}
+
+          <button
+            type="button"
+            onClick={handleSurpriseMe}
+            className="px-3.5 py-1.5 rounded-xl text-[11px] font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-500/40 transition-all cursor-pointer flex items-center gap-1 shadow-md"
+          >
+            <span>🎲 Surprise Me</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="px-3.5 py-1.5 rounded-xl text-[11px] font-semibold bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-white/10 transition-all cursor-pointer flex items-center gap-1"
+          >
+            <span>⚙️ Pro Options {showAdvanced ? "▲" : "▼"}</span>
+          </button>
         </div>
+
+        {/* Collapsible Pro Controls (Lighting, Lens, Negative Prompt) */}
+        {showAdvanced && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="glass-panel p-4 rounded-2xl border border-white/10 mb-4 text-left space-y-3"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-purple-300 font-semibold w-24">Lighting:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {lightingPresets.map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLighting(l)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-medium border cursor-pointer ${
+                      lighting === l ? "bg-purple-600 text-white border-purple-400" : "bg-slate-900/80 text-slate-400 border-white/10"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-indigo-300 font-semibold w-24">Camera Lens:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {lensPresets.map((cam) => (
+                  <button
+                    key={cam}
+                    type="button"
+                    onClick={() => setLens(cam)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-medium border cursor-pointer ${
+                      lens === cam ? "bg-indigo-600 text-white border-indigo-400" : "bg-slate-900/80 text-slate-400 border-white/10"
+                    }`}
+                  >
+                    {cam}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+              <span className="text-xs text-slate-400 font-semibold w-24">Avoid (Negative):</span>
+              <input
+                type="text"
+                value={negativePrompt}
+                onChange={(e) => setNegativePrompt(e.target.value)}
+                placeholder="Elements to avoid (e.g. blur, distortion, extra fingers, text watermark)..."
+                className="flex-1 bg-slate-950/80 border border-white/10 px-3 py-1 rounded-lg text-xs text-white outline-none"
+              />
+            </div>
+          </motion.div>
+        )}
 
         {/* Prompt Input Control Bar */}
         <div className="flex flex-col sm:flex-row items-center gap-2 glass-panel p-2 rounded-3xl border border-white/15 shadow-2xl focus-within:border-purple-500/80 focus-within:shadow-[0_0_25px_rgba(168,85,247,0.3)] transition-all">
