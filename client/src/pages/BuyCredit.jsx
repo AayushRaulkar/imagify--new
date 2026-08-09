@@ -12,6 +12,10 @@ const BuyCredit = () => {
 
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    document.title = "Pricing & Credits - Imagify";
+  }, []);
+
   const initPay = (order, planId) => {
     if (!window.Razorpay) {
       toast.error("Payment SDK not loaded");

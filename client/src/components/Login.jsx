@@ -148,46 +148,15 @@ const Login = () => {
                     )}
                 </button>
 
-                {/* Social Fast SSO Section */}
-                <div className="relative my-5 flex items-center justify-center">
-                    <div className="border-t border-white/10 w-full" />
-                    <span className="bg-slate-950 px-3 text-[10px] uppercase font-bold text-slate-400 absolute">or fast sign in</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setEmail("demo.user@gmail.com");
-                            setPassword("123456");
-                            toast.info("Demo credentials loaded! Click Sign In.");
-                        }}
-                        className="py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                        <span>🌐 Demo Login</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setEmail("developer@github.com");
-                            setPassword("123456");
-                            toast.info("Developer credentials loaded! Click Sign In.");
-                        }}
-                        className="py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/10 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    >
-                        <span>⚡ Dev Access</span>
-                    </button>
-                </div>
-
                 {state === 'Login' ? (
-                    <p className='mt-5 text-center text-xs text-slate-400 font-light'>
+                    <p className='mt-6 text-center text-xs text-slate-400 font-light'>
                         Don't have an account?{' '}
                         <span className='text-purple-400 hover:text-purple-300 font-semibold cursor-pointer transition-colors' onClick={() => setState('Sign Up')}>
                             Sign Up
                         </span>
                     </p>
                 ) : (
-                    <p className='mt-5 text-center text-xs text-slate-400 font-light'>
+                    <p className='mt-6 text-center text-xs text-slate-400 font-light'>
                         Already have an account?{' '}
                         <span className='text-purple-400 hover:text-purple-300 font-semibold cursor-pointer transition-colors' onClick={() => setState('Login')}>
                             Sign In

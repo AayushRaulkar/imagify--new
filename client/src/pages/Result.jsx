@@ -19,6 +19,7 @@ const Result = () => {
   const { generateImage, enhancePromptApi } = useContext(AppContext);
 
   useEffect(() => {
+    document.title = "AI Studio Workspace - Imagify";
     if (location.state?.prompt) {
       setInput(location.state.prompt);
     }
